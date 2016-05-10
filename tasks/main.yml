@@ -1,2 +1,21 @@
 ---
-# tasks file for simplesnap_client
+
+- name: copy simplesnapwrap
+  copy:
+    src: simplesnapwrap
+    dest: /usr/local/bin
+    owner: root
+    group: root
+    mode: "a+x"
+
+
+- name: slurp pub key
+  slurp:
+    src: /root/.ssh/simplesnap.pub
+  register: pub_key
+  delegate_to: "{{ groups.backupserver[0] }}"
+
+- name: copy ssh key from backupserver
+  authorized_key:
+    user: root
+    key: "{{ pub_key.content|b64decode }}"
